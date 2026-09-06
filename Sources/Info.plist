@@ -55,5 +55,24 @@
 	<false/>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleDefault</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>douyin</string>
+		<string>snssdk1128</string>
+		<string>kwai</string>
+		<string>kuaishou</string>
+		<string>bilibili</string>
+		<string>huya</string>
+		<string>douyutv</string>
+		<string>yy</string>
+		<string>xhsdiscover</string>
+		<string>redbook</string>
+		<string>weibo</string>
+		<string>sinaweibo</string>
+		<string>baiduboxapp</string>
+		<string>cc</string>
+		<string>egame</string>
+		<string>huajiao</string>
+	</array>
 </dict>
 </plist>
