@@ -1,0 +1,64 @@
+name: Build IPA
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
+
+      - name: Build (Release, no code sign)
+        run: |
+          xcodebuild \
+            -project LiveAggregator.xcodeproj \
+            -scheme LiveAggregator \
+            -configuration Release \
+            -derivedDataPath build \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_ENTITLEMENTS="" \
+            build
+
+      - name: Verify .app exists
+        run: |
+          APP_PATH="build/Build/Products/Release-iphoneos/LiveAggregator.app"
+          if [ -d "$APP_PATH" ]; then
+            echo "App found: $APP_PATH"
+            ls -la "$APP_PATH"
+          else
+            echo "App not found, searching..."
+            find build -name "*.app" -type d
+            exit 1
+          fi
+
+      - name: Package IPA
+        run: |
+          rm -rf Payload LiveAggregator.ipa
+          mkdir -p Payload
+          cp -r build/Build/Products/Release-iphoneos/LiveAggregator.app Payload/
+          # 移除插件中可能导致安装失败的代码签名相关
+          find Payload -name "_CodeSignature" -type d -exec rm -rf {} + 2>/dev/null || true
+          zip -r LiveAggregator.ipa Payload
+          ls -lh LiveAggregator.ipa
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: LiveAggregator.ipa
+          path: LiveAggregator.ipa
+          retention-days: 30
