@@ -80,14 +80,16 @@ struct WebBrowserView: View {
         }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
-        .alert("加载失败", isPresented: $showError) {
-            Button("重试") {
-                NotificationCenter.default.post(name: .webReload, object: nil)
-                showError = false
-            }
-            Button("取消", role: .cancel) {}
-        } message: {
-            Text("页面加载失败，请检查网络后重试")
+        .alert(isPresented: $showError) {
+            Alert(
+                title: Text("加载失败"),
+                message: Text("页面加载失败，请检查网络后重试"),
+                primaryButton: .default(Text("重试")) {
+                    NotificationCenter.default.post(name: .webReload, object: nil)
+                    showError = false
+                },
+                secondaryButton: .cancel(Text("取消"))
+            )
         }
     }
 }
